@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>KYC Registration | NGO Portal</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+
+<script src="js/firebase.js"></script>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<link rel="icon" type="image/x-icon" href="images/favicon.ico">
+</head>
+
+
+<body class="bg-gradient-to-br from-green-50 to-green-100 min-h-screen flex items-center justify-center p-6">
+
+
+<!-- LOADER -->
+
+<div id="loader"
+class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-50">
+
+<div class="bg-white p-6 rounded-lg flex items-center space-x-4 shadow-lg">
+
+<div class="animate-spin rounded-full h-8 w-8 border-4 border-green-600 border-t-transparent"></div>
+
+<span class="font-semibold text-gray-700">
+Processing Verification...
+</span>
+
+</div>
+
+</div>
+
+
+
+<!-- CARD -->
+
+<div class="bg-white w-full max-w-3xl rounded-xl shadow-xl p-8">
+
+
+<!-- HEADER -->
+
+<div class="text-center mb-8">
+
+<img src="images/logo.png"
+class="w-20 h-20 mx-auto mb-3 rounded-full shadow">
+
+<h2 class="text-2xl font-bold text-green-800">
+FPC Member KYC Registration
+</h2>
+
+<p class="text-gray-500 text-sm">
+Complete verification to activate membership
+</p>
+
+</div>
+
+
+
+<!-- PROGRESS -->
+
+<div class="flex justify-between mb-8 text-sm font-semibold">
+
+<span id="p1" class="text-green-700">1. Basic Details</span>
+<span id="p2" class="text-gray-400">2. Documents</span>
+<span id="p3" class="text-gray-400">3. Face Verify</span>
+
+</div>
+
+
+
+<!-- STEP 1 -->
+
+<div id="step1">
+
+<div class="grid grid-cols-2 gap-4">
+
+<input id="name"
+placeholder="Full Name"
+class="border p-3 rounded">
+
+<input id="email"
+placeholder="Email"
+class="border p-3 rounded">
+
+<input id="mobile"
+placeholder="Mobile Number"
+class="border p-3 rounded">
+
+<input id="password"
+type="password"
+placeholder="Password"
+class="border p-3 rounded">
+
+</div>
+
+<textarea id="address"
+placeholder="Full Address"
+class="border p-3 rounded w-full mt-4"></textarea>
+
+<button onclick="nextStep1()"
+class="bg-green-700 text-white w-full p-3 rounded mt-6">
+
+Continue
+
+</button>
+
+</div>
+
+
+
+<!-- STEP 2 -->
+
+<div id="step2" class="hidden">
+
+<input id="pan"
+placeholder="PAN Card Number"
+class="border p-3 rounded w-full mb-3">
+
+<input id="aadhaar"
+placeholder="Aadhaar Number"
+class="border p-3 rounded w-full mb-3">
+
+<label class="text-sm">Upload Aadhaar Photo</label>
+
+<input id="aadhaarFile"
+type="file"
+class="border p-2 rounded w-full mb-4"
+onchange="previewDoc(event)">
+
+<img id="preview"
+class="hidden w-40 rounded shadow mb-4">
+
+<button onclick="nextStep2()"
+class="bg-green-700 text-white w-full p-3 rounded">
+
+Continue
+
+</button>
+
+</div>
+
+
+
+<!-- STEP 3 -->
+
+<div id="step3" class="hidden">
+
+<label class="text-sm">Upload Selfie</label>
+
+<input id="selfie"
+type="file"
+class="border p-2 rounded w-full mb-4">
+
+<div class="g-recaptcha mb-4"
+data-sitekey="6LeymYEsAAAAACV0-SpOGAYxTvhSH2OCErcuOSBF"></div>
+
+<button onclick="submitKYC()"
+class="bg-blue-600 text-white w-full p-3 rounded">
+
+Submit Document
+
+</button>
+
+</div>
+
+</div>
+
+
+
+<script>
+
+
+function showLoader(){
+
+document.getElementById("loader").classList.remove("hidden")
+
+}
+
+function hideLoader(){
+
+document.getElementById("loader").classList.add("hidden")
+
+}
+
+
+
+function nextStep1(){
+
+showLoader()
+
+setTimeout(()=>{
+
+hideLoader()
+
+document.getElementById("step1").style.display="none"
+document.getElementById("step2").style.display="block"
+
+document.getElementById("p1").classList.remove("text-green-700")
+document.getElementById("p2").classList.add("text-green-700")
+
+},1000)
+
+}
+
+
+
+function nextStep2(){
+
+let pan=document.getElementById("pan").value
+let aadhaar=document.getElementById("aadhaar").value
+
+let panRegex=/[A-Z]{5}[0-9]{4}[A-Z]{1}/
+
+if(!panRegex.test(pan)){
+
+alert("Invalid PAN format")
+return
+
+}
+
+if(aadhaar.length!=12){
+
+alert("Aadhaar must be 12 digits")
+return
+
+}
+
+showLoader()
+
+setTimeout(()=>{
+
+hideLoader()
+
+document.getElementById("step2").style.display="none"
+document.getElementById("step3").style.display="block"
+
+document.getElementById("p2").classList.remove("text-green-700")
+document.getElementById("p3").classList.add("text-green-700")
+
+},1000)
+
+}
+
+
+
+function previewDoc(event){
+
+let img=document.getElementById("preview")
+
+img.src=URL.createObjectURL(event.target.files[0])
+
+img.classList.remove("hidden")
+
+}
+
+
+
+async function submitKYC(){
+
+let captcha=grecaptcha.getResponse()
+
+if(captcha.length==0){
+
+alert("verify reCAPTCHA")
+return
+
+}
+
+showLoader()
+
+let user=await auth.createUserWithEmailAndPassword(
+
+document.getElementById("email").value,
+document.getElementById("password").value
+
+)
+
+let uid=user.user.uid
+
+let aadhaarFile=document.getElementById("aadhaarFile").files[0]
+let selfieFile=document.getElementById("selfie").files[0]
+
+
+let aadhaarRef=storage.ref("kyc/"+uid+"/aadhaar.jpg")
+let selfieRef=storage.ref("kyc/"+uid+"/selfie.jpg")
+
+
+await aadhaarRef.put(aadhaarFile)
+await selfieRef.put(selfieFile)
+
+
+await db.collection("users").doc(uid).set({
+
+name:document.getElementById("name").value,
+email:document.getElementById("email").value,
+mobile:document.getElementById("mobile").value,
+address:document.getElementById("address").value,
+pan:document.getElementById("pan").value,
+aadhaar:document.getElementById("aadhaar").value,
+status:"Pending Verification",
+created:new Date()
+
+})
+
+
+hideLoader()
+
+alert("KYC Submitted Successfully")
+
+window.location="login.html"
+
+}
+
+
+</script>
+
+
+</body>
+</html>

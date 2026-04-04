@@ -1,0 +1,304 @@
+ <!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Member Dashboard</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Firebase -->
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+<script src="js/firebase.js"></script>
+<link rel="icon" type="image/x-icon" href="images/favicon.ico">
+
+</head>
+
+
+
+<body class="bg-gray-50 font-sans">
+
+<!-- NAVBAR -->
+
+<nav class="bg-white shadow sticky top-0 z-50">
+
+<div class="max-w-7xl mx-auto px-6 py-4 grid grid-cols-3 items-center">
+
+
+<!-- LOGO -->
+
+<div class="flex items-center space-x-3">
+
+<img src="images/logo.png" class="w-12 h-12 rounded-full border">
+
+<h1 class="font-bold text-green-800 text-lg">
+Keora Women Producer Company
+</h1>
+
+</div>
+
+
+
+<!-- MENU -->
+
+<div class="flex justify-center space-x-8 font-semibold text-gray-700">
+
+<a href="index.html">Home</a>
+<a href="index.html#about">About</a>
+<a href="index.html#services">Services</a>
+<a href="impact.html">Impact</a>
+<a href="index.html#contact">Contact</a>
+
+</div>
+
+
+
+<!-- PROFILE -->
+
+<div class="flex justify-end">
+
+<div class="relative">
+
+<button onclick="toggleMenu()" class="flex items-center space-x-2">
+
+<img id="userPhoto"
+src="images/user.png"
+class="w-10 h-10 rounded-full border object-cover">
+
+<span id="username" class="font-semibold"></span>
+
+</button>
+
+
+<!-- DROPDOWN -->
+
+<div id="menu"
+class="hidden absolute right-0 mt-2 w-48 bg-white shadow rounded">
+
+<a href="profile.html"
+class="block px-4 py-2 hover:bg-gray-100">
+
+Manage Profile
+
+</a>
+
+<a href="entries.html"
+class="block px-4 py-2 hover:bg-gray-100">
+
+My Entries
+
+</a>
+
+<button onclick="logout()"
+class="block w-full text-left px-4 py-2 hover:bg-gray-100">
+
+Logout
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+</nav>
+
+
+
+<!-- DASHBOARD CONTENT -->
+
+<div class="max-w-6xl mx-auto mt-10 px-6">
+
+
+<h2 class="text-3xl font-bold text-green-800 mb-6">
+
+Welcome to your Dashboard
+
+</h2>
+
+
+
+<div class="grid md:grid-cols-3 gap-6">
+
+
+<!-- PROFILE CARD -->
+
+<div class="bg-white shadow rounded-lg p-6">
+
+<h3 class="font-semibold text-lg mb-3">
+Profile
+</h3>
+
+<img id="profilePic"
+src="images/user.png"
+class="w-24 h-24 rounded-full border mb-4">
+
+<p>
+<strong>Name:</strong>
+<span id="name"></span>
+</p>
+
+<p>
+<strong>Email:</strong>
+<span id="email"></span>
+</p>
+
+<p>
+<strong>Mobile:</strong>
+<span id="mobile"></span>
+</p>
+
+</div>
+
+
+
+<!-- STATUS CARD -->
+
+<div class="bg-white shadow rounded-lg p-6">
+
+<h3 class="font-semibold text-lg mb-3">
+Verification
+</h3>
+
+<p>
+
+KYC Status:
+<span id="status" class="font-bold text-green-700">
+Loading
+</span>
+
+</p>
+
+<p class="mt-2">
+
+Member ID:
+<span id="memberID" class="font-bold text-blue-700">
+Pending
+</span>
+
+</p>
+
+</div>
+
+
+
+<!-- ACTIVITY CARD -->
+
+<div class="bg-white shadow rounded-lg p-6">
+
+<h3 class="font-semibold text-lg mb-3">
+Announcements
+</h3>
+
+<ul class="list-disc pl-4 text-gray-700">
+
+<li>Women training program starting next month.</li>
+<li>Government subsidy applications open.</li>
+<li>Next community meeting scheduled.</li>
+
+</ul>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+<script>
+
+
+// CHECK LOGIN
+
+auth.onAuthStateChanged(user=>{
+
+if(!user){
+
+window.location="login.html"
+return
+
+}
+
+
+
+db.collection("users")
+.doc(user.uid)
+.get()
+.then(doc=>{
+
+let data = doc.data()
+
+
+document.getElementById("username").innerText = data.name
+
+document.getElementById("name").innerText = data.name
+document.getElementById("email").innerText = data.email
+document.getElementById("mobile").innerText = data.mobile
+
+
+document.getElementById("status").innerText = data.status
+
+document.getElementById("memberID").innerText =
+data.memberID || "Pending Approval"
+
+
+
+if(data.photoURL){
+
+document.getElementById("userPhoto").src = data.photoURL
+document.getElementById("profilePic").src = data.photoURL
+
+}else{
+
+document.getElementById("userPhoto").src = "images/user.png"
+document.getElementById("profilePic").src = "images/user.png"
+
+}
+
+})
+
+})
+
+
+
+// DROPDOWN
+
+function toggleMenu(){
+
+document.getElementById("menu").classList.toggle("hidden")
+
+}
+
+
+
+// LOGOUT
+
+function logout(){
+
+auth.signOut().then(()=>{
+
+window.location="index.html"
+
+})
+
+}
+
+</script>
+
+
+
+</body>
+</html>
